@@ -1,0 +1,45 @@
+{
+  "name": "@eramux/graph-structure",
+  "version": "0.0.1",
+  "description": "Typescript graph structure library for common graph operations",
+  "main": "dist/Graph.js",
+  "types": "dist/Grph.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest --forceExit --coverage --detectOpenHandles",
+    "postinstall": "husky install",
+    "prepare": "husky install",
+    "lint": "eslint --fix --ext .ts --ignore-path .gitignore .",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix"
+    ]
+  },
+  "author": "Daniel Schneider",
+  "license": "MIT",
+  "dependencies": {
+    "@types/jest": "^28.1.7"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.30.7",
+    "@typescript-eslint/parser": "^5.30.7",
+    "eslint": "^8.20.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "husky": "^8.0.1",
+    "jest": "^28.1.3",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
+    "ts-jest": "^28.0.7",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.7.4"
+  }
+}
