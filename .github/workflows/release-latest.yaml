@@ -6,7 +6,7 @@ on:
       - main
   workflow_dispatch:
 jobs:
-  build-container:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
