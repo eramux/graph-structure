@@ -1,6 +1,6 @@
 {
   "name": "@eramux/graph-structure",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Typescript graph structure library for common graph operations",
   "main": "dist/Graph.js",
   "types": "dist/Grph.d.ts",
