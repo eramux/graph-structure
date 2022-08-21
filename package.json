@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "description": "Typescript graph structure library for common graph operations",
   "main": "dist/Graph.js",
-  "types": "dist/Grph.d.ts",
+  "types": "dist/Graph.d.ts",
   "files": [
     "/dist"
   ],
