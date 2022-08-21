@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "jest --forceExit --coverage --detectOpenHandles",
-    "lint": "eslint --fix --ext .ts --ignore-path .gitignore .",
+    "lint": "eslint --fix --ext .ts --ignore-path .gitignore ."
   },
   "author": "Daniel Schneider",
   "license": "MIT",
