@@ -10,15 +10,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "jest --forceExit --coverage --detectOpenHandles",
-    "postinstall": "husky install",
-    "prepare": "husky install",
     "lint": "eslint --fix --ext .ts --ignore-path .gitignore .",
-    "lint-staged": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "eslint --fix"
-    ]
   },
   "author": "Daniel Schneider",
   "license": "MIT",
