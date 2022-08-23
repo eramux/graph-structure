@@ -436,8 +436,19 @@ export default class Graph {
     return serialized;
   }
 
+  /**
+   * Reset graph structure
+   */
+  reset() {
+    this.edges.clear();
+  }
+
   // Deserializes the given serialized graph.
-  deserialize(serialized: Serialized) {
+  deserialize(serialized: Serialized, reset = false) {
+    if (reset) {
+      this.reset();
+    }
+
     serialized.nodes.forEach((node) => {
       this.addNode(node.id);
     });
