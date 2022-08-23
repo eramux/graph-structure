@@ -135,6 +135,28 @@ describe("Graph", () => {
       graph.addEdge("a", "c");
       expect(graph.outbound("a").length).toBe(2);
     });
+
+    it("should give the correct entry nodes", () => {
+      const graph = new Graph();
+      graph.addEdge("a", "b");
+      graph.addEdge("b", "c");
+      graph.addEdge("c", "d");
+      graph.addEdge("c", "e");
+      graph.addEdge("f", "c");
+
+      expect(graph.entryNodes).toEqual(["a", "f"]);
+    });
+
+    it("should give the correct exit nodes", () => {
+      const graph = new Graph();
+      graph.addEdge("a", "b");
+      graph.addEdge("a", "c");
+      graph.addEdge("c", "d");
+      graph.addEdge("c", "e");
+      graph.addEdge("d", "e");
+
+      expect(graph.exitNodes).toEqual(["b", "e"]);
+    });
   });
 
   describe("Algorithms", () => {

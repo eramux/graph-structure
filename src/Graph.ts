@@ -50,6 +50,42 @@ export default class Graph {
     return [...nodeSet.values()];
   }
 
+  /**
+   * Get all nodes in the graph that have no preceeding nodes. These are the
+   * "entry" nodes of the graph
+   */
+  get entryNodes(): NodeId[] {
+    const nodeSet = new Set<NodeId>();
+
+    this.edges.forEach((targetNodes, sourceNode) => {
+      const inboundNodes = this.inbound(sourceNode);
+
+      if (inboundNodes.length === 0) {
+        nodeSet.add(sourceNode);
+      }
+    });
+
+    return [...nodeSet.values()];
+  }
+
+  /**
+   * Get all nodes in the graph that have no succeeding nodes. These are the
+   * "exit" nodes of the graph
+   */
+  get exitNodes(): NodeId[] {
+    const nodeSet = new Set<NodeId>();
+
+    this.edges.forEach((targetNodes, sourceNode) => {
+      const outboundNodes = this.outbound(sourceNode);
+
+      if (outboundNodes.length === 0) {
+        nodeSet.add(sourceNode);
+      }
+    });
+
+    return [...nodeSet.values()];
+  }
+
   // Adds a node to the graph.
   // If node was already added, this function does nothing.
   // If node was not already added, this function sets up an empty adjacency list.
@@ -169,10 +205,6 @@ export default class Graph {
       sourceNodes = this.nodes;
     }
 
-    if (typeof includeSourceNodes !== "boolean") {
-      includeSourceNodes = true;
-    }
-
     const visited: Record<NodeId, boolean> = {};
     const visiting: Record<NodeId, boolean> = {};
     const nodeList: NodeId[] = [];
@@ -209,14 +241,15 @@ export default class Graph {
     try {
       this.depthFirstSearch(undefined, true, true);
       // No error thrown -> no cycles
-      return false;
     } catch (error) {
       if (error instanceof CycleError) {
         return true;
-      } else {
-        throw error;
       }
+
+      throw error;
     }
+
+    return false;
   }
 
   // Least Common Ancestors

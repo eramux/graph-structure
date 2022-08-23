@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "jest --forceExit --coverage --detectOpenHandles",
+    "test-ci": "jest --ci --coverage",
     "lint": "eslint --fix --ext .ts --ignore-path .gitignore ."
   },
   "author": "Daniel Schneider",
