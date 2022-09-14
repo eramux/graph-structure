@@ -15,16 +15,18 @@ class CycleError extends Error {
 }
 
 // A graph data structure with depth-first search and topological sort.
-export default class Graph {
+export class Graph {
+  protected _directed = true;
+
   // The adjacency list of the graph.
   // Keys are node ids.
   // Values are adjacent node id arrays.
-  private edges: Map<NodeId, NodeId[]> = new Map();
+  private _edges: Map<NodeId, NodeId[]> = new Map();
 
   // The weights of edges.
   // Keys are string encodings of edges.
   // Values are weights (numbers).
-  private edgeWeights: Map<EncodedEdge, EdgeWeight> = new Map();
+  private _edgeWeights: Map<EncodedEdge, EdgeWeight> = new Map();
 
   constructor(serialized?: Serialized) {
     // If a serialized graph was passed into the constructor, deserialize it.
@@ -33,18 +35,21 @@ export default class Graph {
     }
   }
 
+  get edges() {
+    return this._edges;
+  }
+
   // Gets the list of nodes that have been added to the graph.
   get nodes(): NodeId[] {
-    // TODO: Better implementation with set data structure
-
     const nodeSet = new Set<NodeId>();
-    this.edges.forEach((targetNodes, sourceNode) => {
+
+    this._edges.forEach((targetNodes, sourceNode) => {
       // nodeSet[u] = true;
       nodeSet.add(sourceNode);
 
-      targetNodes.forEach((targetNode) => {
-        nodeSet.add(targetNode);
-      });
+      // targetNodes.forEach((targetNode) => {
+      //   nodeSet.add(targetNode);
+      // });
     });
 
     return [...nodeSet.values()];
@@ -57,7 +62,7 @@ export default class Graph {
   get entryNodes(): NodeId[] {
     const nodeSet = new Set<NodeId>();
 
-    this.edges.forEach((targetNodes, sourceNode) => {
+    this._edges.forEach((targetNodes, sourceNode) => {
       const inboundNodes = this.inbound(sourceNode);
 
       if (inboundNodes.length === 0) {
@@ -75,7 +80,7 @@ export default class Graph {
   get exitNodes(): NodeId[] {
     const nodeSet = new Set<NodeId>();
 
-    this.edges.forEach((targetNodes, sourceNode) => {
+    this._edges.forEach((targetNodes, sourceNode) => {
       const outboundNodes = this.outbound(sourceNode);
 
       if (outboundNodes.length === 0) {
@@ -90,7 +95,7 @@ export default class Graph {
   // If node was already added, this function does nothing.
   // If node was not already added, this function sets up an empty adjacency list.
   addNode(node: NodeId) {
-    this.edges.set(node, this.adjacent(node));
+    this._edges.set(node, this.adjacent(node));
     return this;
   }
 
@@ -98,7 +103,7 @@ export default class Graph {
   // Also removes incoming and outgoing edges.
   removeNode(node: NodeId) {
     // Remove incoming edges.
-    this.edges.forEach((targetNodes, sourceNode) => {
+    this._edges.forEach((targetNodes, sourceNode) => {
       targetNodes.forEach((targetNode) => {
         if (targetNode === node) {
           this.removeEdge(sourceNode, targetNode);
@@ -107,14 +112,14 @@ export default class Graph {
     });
 
     // Remove outgoing edges (and signal that the node no longer exists).
-    this.edges.delete(node);
+    this._edges.delete(node);
     return this;
   }
 
   // Gets the adjacent node list for the given node.
   // Returns an empty array for unknown nodes.
   adjacent(node: NodeId): NodeId[] {
-    return this.edges.get(node) || [];
+    return this._edges.get(node) || [];
   }
 
   // Computes a string encoding of an edge,
@@ -125,14 +130,14 @@ export default class Graph {
 
   // Sets the weight of the given edge.
   setEdgeWeight(sourceNode: NodeId, targetNode: NodeId, weight: EdgeWeight) {
-    this.edgeWeights.set(this.encodeEdge(sourceNode, targetNode), weight);
+    this._edgeWeights.set(this.encodeEdge(sourceNode, targetNode), weight);
     return this;
   }
 
   // Gets the weight of the given edge.
   // Returns 1 if no weight was previously set.
   getEdgeWeight(sourceNode: NodeId, targetNode: NodeId): EdgeWeight {
-    return this.edgeWeights.get(this.encodeEdge(sourceNode, targetNode)) ?? 1;
+    return this._edgeWeights.get(this.encodeEdge(sourceNode, targetNode)) ?? 1;
   }
 
   // Adds an edge from node u to node v.
@@ -140,10 +145,17 @@ export default class Graph {
   addEdge(sourceNode: NodeId, targetNode: NodeId, weight?: EdgeWeight) {
     this.addNode(sourceNode);
     this.addNode(targetNode);
-    this.adjacent(sourceNode).push(targetNode);
 
+    this.adjacent(sourceNode).push(targetNode);
     if (weight !== undefined) {
       this.setEdgeWeight(sourceNode, targetNode, weight);
+    }
+
+    if (!this._directed && targetNode !== sourceNode) {
+      this.adjacent(targetNode).push(sourceNode);
+      if (weight !== undefined) {
+        this.setEdgeWeight(targetNode, sourceNode, weight);
+      }
     }
 
     return this;
@@ -153,14 +165,24 @@ export default class Graph {
   // Does not remove the nodes.
   // Does nothing if the edge does not exist.
   removeEdge(sourceNode: NodeId, targetNode: NodeId) {
-    if (this.edges.get(sourceNode)) {
-      this.edges.set(
+    if (this._edges.get(sourceNode)) {
+      this._edges.set(
         sourceNode,
         this.adjacent(sourceNode).filter((targetNodes) => {
           return targetNodes !== targetNode;
         })
       );
     }
+
+    if (this._edges.get(targetNode) && !this._directed) {
+      this._edges.set(
+        targetNode,
+        this.adjacent(targetNode).filter((sourceNodes) => {
+          return sourceNodes !== sourceNode;
+        })
+      );
+    }
+
     return this;
   }
 
@@ -174,7 +196,7 @@ export default class Graph {
   inbound(node: NodeId) {
     const inboundNodes = new Set<NodeId>();
 
-    this.edges.forEach((targetNodes, sourceNode) => {
+    this._edges.forEach((targetNodes, sourceNode) => {
       targetNodes.forEach((targetNode) => {
         if (targetNode === node) {
           inboundNodes.add(sourceNode);
@@ -187,7 +209,7 @@ export default class Graph {
 
   // Computes the outdegree for the given node.
   outbound(node: NodeId) {
-    return this.edges.get(node) ?? [];
+    return this._edges.get(node) ?? [];
   }
 
   // Depth First Search algorithm, inspired by
@@ -421,7 +443,8 @@ export default class Graph {
 
     for (const node of this.nodes) {
       if (!visitedMap.has(node)) {
-        const subNodes = this.depthFirstSearch([node]);
+        const subNodes = this.depthFirstSearch([node], true);
+
         for (const subNode of subNodes) {
           visitedMap.add(subNode);
         }
@@ -460,7 +483,7 @@ export default class Graph {
    * Reset graph structure
    */
   reset() {
-    this.edges.clear();
+    this._edges.clear();
   }
 
   // Deserializes the given serialized graph.
@@ -475,5 +498,12 @@ export default class Graph {
     serialized.links.forEach((link) => {
       this.addEdge(link.source, link.target, link.weight);
     });
+  }
+}
+
+export class UndirectedGraph extends Graph {
+  constructor(serialized?: Serialized) {
+    super(serialized);
+    this._directed = false;
   }
 }

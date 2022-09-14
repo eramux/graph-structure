@@ -1,4 +1,4 @@
-import Graph, { NodeId, Serialized } from "../Graph";
+import { Graph, NodeId, Serialized, UndirectedGraph } from "../Graph";
 
 function withWeight(
   nodeList: string[] & {
@@ -92,6 +92,32 @@ describe("Graph", () => {
       graph.removeEdge("a", "b");
       expect(graph.adjacent("a").length).toBe(0);
     });
+
+    // it("Should add edges kommutatively.", () => {
+    //   const graph1 = new Graph();
+    //   graph1.addEdge(
+    //     "c4fdb5fc-453b-421d-92d5-9f6e89a90e0b",
+    //     "d9bc01a4-af51-4664-8abd-5b7b69238487"
+    //   );
+    //   graph1.addEdge(
+    //     "d9bc01a4-af51-4664-8abd-5b7b69238487",
+    //     "6b9c4966-34dc-4cd4-8eeb-692d9d18da19"
+    //   );
+
+    //   const graph2 = new Graph();
+    //   graph2.addEdge(
+    //     "d9bc01a4-af51-4664-8abd-5b7b69238487",
+    //     "6b9c4966-34dc-4cd4-8eeb-692d9d18da19"
+    //   );
+    //   graph2.addEdge(
+    //     "c4fdb5fc-453b-421d-92d5-9f6e89a90e0b",
+    //     "d9bc01a4-af51-4664-8abd-5b7b69238487"
+    //   );
+
+    //   console.log(graph1, graph2);
+
+    //   expect(graph1.adjacent("a").length).toBe(0);
+    // });
 
     it("Should not remove nodes when edges are removed.", () => {
       const graph = new Graph();
@@ -471,7 +497,7 @@ describe("Graph", () => {
 
   describe("findComponents", () => {
     it("Should return all component groupings", () => {
-      const graph = new Graph();
+      const graph = new UndirectedGraph();
 
       graph.addEdge("a", "b");
       graph.addEdge("b", "c");
@@ -480,10 +506,43 @@ describe("Graph", () => {
 
       const components = graph.findComponents();
 
+      console.log("sdfdsfsf", graph);
+
       expect(components.length).toBe(3);
       expect(components[0]).toStrictEqual(["a", "b", "c"]);
       expect(components[1]).toStrictEqual(["e", "f"]);
       expect(components[2]).toStrictEqual(["d"]);
+    });
+    it("Correctly compute components", () => {
+      const graph = new UndirectedGraph();
+
+      graph.addEdge(
+        "d9bc01a4-af51-4664-8abd-5b7b69238487",
+        "6b9c4966-34dc-4cd4-8eeb-692d9d18da19"
+      );
+
+      graph.addEdge(
+        "c4fdb5fc-453b-421d-92d5-9f6e89a90e0b",
+        "d9bc01a4-af51-4664-8abd-5b7b69238487"
+      );
+
+      graph.addEdge(
+        "4f1dd46c-f486-4673-b584-48d66fa71c59",
+        "ca12c082-f266-4e7b-a689-27821a8477f0"
+      );
+      graph.addEdge(
+        "3ad67cb3-06be-4477-b2a6-a59413733a6d",
+        "4f1dd46c-f486-4673-b584-48d66fa71c59"
+      );
+
+      graph.addEdge(
+        "7f02a04e-5c8e-40e9-b9f4-95a9c16fc2c5",
+        "53bfbef1-b98f-43b5-a599-0ba874c72f1a"
+      );
+
+      const components = graph.findComponents();
+
+      expect(components.length).toBe(3);
     });
   });
 });
