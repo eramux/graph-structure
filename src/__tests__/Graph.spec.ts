@@ -1,4 +1,4 @@
-import Graph, { Serialized } from "../Graph";
+import Graph, { NodeId, Serialized } from "../Graph";
 
 function withWeight(
   nodeList: string[] & {
@@ -468,9 +468,27 @@ describe("Graph", () => {
       expect(graph.hasEdge("c", "a")).toBe(false);
     });
   });
+
+  describe("findComponents", () => {
+    it("Should return all component groupings", () => {
+      const graph = new Graph();
+
+      graph.addEdge("a", "b");
+      graph.addEdge("b", "c");
+      graph.addEdge("e", "f");
+      graph.addEdge("d", "d");
+
+      const components = graph.findComponents();
+
+      expect(components.length).toBe(3);
+      expect(components[0]).toStrictEqual(["a", "b", "c"]);
+      expect(components[1]).toStrictEqual(["e", "f"]);
+      expect(components[2]).toStrictEqual(["d"]);
+    });
+  });
 });
 
-function comesBefore(arr: string[], a: string, b: string) {
+function comesBefore(arr: NodeId[], a: NodeId, b: NodeId) {
   let aIndex: number | undefined = undefined;
   let bIndex: number | undefined = undefined;
   arr.forEach(function (d, i) {

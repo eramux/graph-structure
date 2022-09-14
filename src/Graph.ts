@@ -1,6 +1,6 @@
-type NodeId = string;
-type EdgeWeight = number;
-type EncodedEdge = string;
+export type NodeId = string | number;
+export type EdgeWeight = number;
+export type EncodedEdge = string;
 
 export interface Serialized {
   nodes: { id: NodeId }[];
@@ -172,7 +172,7 @@ export default class Graph {
   // Computes the indegree for the given node.
   // Not very efficient, costs O(E) where E = number of edges.
   inbound(node: NodeId) {
-    const inboundNodes = new Set<string>();
+    const inboundNodes = new Set<NodeId>();
 
     this.edges.forEach((targetNodes, sourceNode) => {
       targetNodes.forEach((targetNode) => {
@@ -411,6 +411,26 @@ export default class Graph {
     dijkstra();
 
     return path();
+  }
+
+  // Find all graph components and return their groupings
+  findComponents() {
+    const visitedMap: Set<NodeId> = new Set();
+
+    const componentGroups: NodeId[][] = [];
+
+    for (const node of this.nodes) {
+      if (!visitedMap.has(node)) {
+        const subNodes = this.depthFirstSearch([node]);
+        for (const subNode of subNodes) {
+          visitedMap.add(subNode);
+        }
+
+        componentGroups.push(subNodes.reverse());
+      }
+    }
+
+    return componentGroups;
   }
 
   // Serializes the graph.
