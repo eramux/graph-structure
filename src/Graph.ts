@@ -495,6 +495,7 @@ export class Graph {
     serialized.nodes.forEach((node) => {
       this.addNode(node.id);
     });
+
     serialized.links.forEach((link) => {
       this.addEdge(link.source, link.target, link.weight);
     });
@@ -502,8 +503,9 @@ export class Graph {
 }
 
 export class UndirectedGraph extends Graph {
+  protected _directed = false;
+
   constructor(serialized?: Serialized) {
     super(serialized);
-    this._directed = false;
   }
 }
