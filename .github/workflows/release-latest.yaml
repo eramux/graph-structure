@@ -30,9 +30,6 @@ jobs:
           npm ci
           npm run test-ci
 
-      # - name: Generating coverage badges
-      #   uses: jpb06/jest-badges-action@latest
-
   build:
     runs-on: ubuntu-latest
     needs:
@@ -67,3 +64,10 @@ jobs:
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - run: |
+          npm ci
+          npm run test-ci
+
+      - name: Generating coverage badges
+        uses: jpb06/jest-badges-action@latest
