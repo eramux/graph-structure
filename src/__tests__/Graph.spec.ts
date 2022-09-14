@@ -513,6 +513,7 @@ describe("Graph", () => {
       expect(components[1]).toStrictEqual(["e", "f"]);
       expect(components[2]).toStrictEqual(["d"]);
     });
+
     it("Correctly compute components", () => {
       const graph = new UndirectedGraph();
 

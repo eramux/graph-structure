@@ -16,17 +16,15 @@ class CycleError extends Error {
 
 // A graph data structure with depth-first search and topological sort.
 export class Graph {
-  protected _directed = true;
-
   // The adjacency list of the graph.
   // Keys are node ids.
   // Values are adjacent node id arrays.
-  private _edges: Map<NodeId, NodeId[]> = new Map();
+  protected _edges: Map<NodeId, NodeId[]> = new Map();
 
   // The weights of edges.
   // Keys are string encodings of edges.
   // Values are weights (numbers).
-  private _edgeWeights: Map<EncodedEdge, EdgeWeight> = new Map();
+  protected _edgeWeights: Map<EncodedEdge, EdgeWeight> = new Map();
 
   constructor(serialized?: Serialized) {
     // If a serialized graph was passed into the constructor, deserialize it.
@@ -124,7 +122,7 @@ export class Graph {
 
   // Computes a string encoding of an edge,
   // for use as a key in an object.
-  private encodeEdge(sourceNode: NodeId, targetNode: NodeId): EncodedEdge {
+  protected encodeEdge(sourceNode: NodeId, targetNode: NodeId): EncodedEdge {
     return sourceNode + "|" + targetNode;
   }
 
@@ -151,13 +149,6 @@ export class Graph {
       this.setEdgeWeight(sourceNode, targetNode, weight);
     }
 
-    if (!this._directed && targetNode !== sourceNode) {
-      this.adjacent(targetNode).push(sourceNode);
-      if (weight !== undefined) {
-        this.setEdgeWeight(targetNode, sourceNode, weight);
-      }
-    }
-
     return this;
   }
 
@@ -170,15 +161,6 @@ export class Graph {
         sourceNode,
         this.adjacent(sourceNode).filter((targetNodes) => {
           return targetNodes !== targetNode;
-        })
-      );
-    }
-
-    if (this._edges.get(targetNode) && !this._directed) {
-      this._edges.set(
-        targetNode,
-        this.adjacent(targetNode).filter((sourceNodes) => {
-          return sourceNodes !== sourceNode;
         })
       );
     }
@@ -503,9 +485,41 @@ export class Graph {
 }
 
 export class UndirectedGraph extends Graph {
-  protected _directed = false;
+  // Implicitly adds the nodes if they were not already added.
+  addEdge(sourceNode: NodeId, targetNode: NodeId, weight?: EdgeWeight) {
+    this.addNode(sourceNode);
+    this.addNode(targetNode);
 
-  constructor(serialized?: Serialized) {
-    super(serialized);
+    this.adjacent(sourceNode).push(targetNode);
+    this.adjacent(targetNode).push(sourceNode);
+
+    if (weight !== undefined) {
+      this.setEdgeWeight(sourceNode, targetNode, weight);
+      this.setEdgeWeight(targetNode, sourceNode, weight);
+    }
+
+    return this;
+  }
+
+  removeEdge(sourceNode: NodeId, targetNode: NodeId) {
+    if (this._edges.get(sourceNode)) {
+      this._edges.set(
+        sourceNode,
+        this.adjacent(sourceNode).filter((targetNodes) => {
+          return targetNodes !== targetNode;
+        })
+      );
+    }
+
+    if (this._edges.get(targetNode)) {
+      this._edges.set(
+        targetNode,
+        this.adjacent(targetNode).filter((sourceNodes) => {
+          return sourceNodes !== sourceNode;
+        })
+      );
+    }
+
+    return this;
   }
 }
