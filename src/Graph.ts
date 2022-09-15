@@ -417,27 +417,6 @@ export class Graph {
     return path();
   }
 
-  // Find all graph components and return their groupings
-  findComponents() {
-    const visitedMap: Set<NodeId> = new Set();
-
-    const componentGroups: NodeId[][] = [];
-
-    for (const node of this.nodes) {
-      if (!visitedMap.has(node)) {
-        const subNodes = this.depthFirstSearch([node], true);
-
-        for (const subNode of subNodes) {
-          visitedMap.add(subNode);
-        }
-
-        componentGroups.push(subNodes.reverse());
-      }
-    }
-
-    return componentGroups;
-  }
-
   // Serializes the graph.
   serialize() {
     const serialized: Serialized = {
@@ -521,5 +500,26 @@ export class UndirectedGraph extends Graph {
     }
 
     return this;
+  }
+
+  // Find all graph components and return their groupings
+  findComponents() {
+    const visitedMap: Set<NodeId> = new Set();
+
+    const componentGroups: NodeId[][] = [];
+
+    for (const node of this.nodes) {
+      if (!visitedMap.has(node)) {
+        const subNodes = this.depthFirstSearch([node], true);
+
+        for (const subNode of subNodes) {
+          visitedMap.add(subNode);
+        }
+
+        componentGroups.push(subNodes.reverse());
+      }
+    }
+
+    return componentGroups;
   }
 }
